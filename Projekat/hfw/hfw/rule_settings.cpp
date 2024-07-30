@@ -4,7 +4,9 @@
 #include <string>
 
 #include "helper.h"
+#include "string_helper.h"
 #include "enums.h"
+#include "rule_enumerations.h"
 
 using namespace std;
 
@@ -263,4 +265,101 @@ void AddNewRule()
 	{
 		SysFreeString(bstrICMPTypeCode);
 	}
+}
+
+void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
+{
+}
+
+void UpdateFwRule(CComPtr<INetFwRule> fwRule, int position)
+{
+	FwRule updatedFwRule;
+	DumpFWRulesInCollection(fwRule, position);
+	UpdatePropertiesDialog(fwRule);
+}
+
+void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
+{
+	FwRule updatedFwRule = FwRule();
+	LONG lProtocol;
+	HRESULT hr = S_OK;
+
+	hr = fwRule->get_Protocol(&lProtocol);
+	if(FAILED(hr)) 
+	{
+		wprintf(L"get_Protocol failed: 0x%08lx\n", hr);
+		wprintf(L"UpdateFwRule failed\n");
+		return;
+	}
+
+	cout << "Change Application Name (y/n): ";
+	if (EnterYesNoInput() == 'y') 
+	{
+		updatedFwRule.setApplicationName(EnterFwRuleAppName());
+	}
+
+	cout << "Change Protocol (y/n): ";
+	if (EnterYesNoInput() == 'y') 
+	{
+		lProtocol = EnterFwRuleProtocolNumber();
+		updatedFwRule.setProtocol(lProtocol);
+	}
+
+	if (lProtocol == IP_PROTOCOL_TCP or lProtocol == IP_PROTOCOL_UDP)
+	{
+		cout << "Change Local Ports (y/n): ";
+		if (EnterYesNoInput() == 'y') 
+		{
+			updatedFwRule.setLocalPorts(EnterFwRulePorts(true, lProtocol == IP_PROTOCOL_TCP));
+		}
+
+		cout << "Change Remote Ports (y/n): ";
+		if (EnterYesNoInput() == 'y') 
+		{
+			updatedFwRule.setRemotePorts(EnterFwRulePorts(false, lProtocol == IP_PROTOCOL_TCP));
+		}
+	}
+
+	else if (lProtocol == IP_PROTOCOL_ICMP4 or lProtocol == IP_PROTOCOL_ICMP6)
+	{
+		cout << "Change ICMP Types (y/n): ";
+		if (EnterYesNoInput() == 'y')
+		{
+			updatedFwRule.setICMPTypeCode(EnterFwRuleICMPTypes(lProtocol == 1));
+		}
+	}
+
+	cout << "Change Direction (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setDirection(EnterFwRuleDirection());
+	}
+
+	cout << "Change Action (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setAction(EnterFwRuleAction());
+	}
+
+	cout << "Change Profiles (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setProfilesBitMask(EnterFwRuleProfiles());
+	}
+
+	cout << "Change Name (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setName(EnterFwRuleName());
+	}
+
+	cout << "Change Description (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setDescription(EnterFwRuleDescription());
+	}
+
+	//TODO: Change additional properties
+
+	//TODO: SaveChanges
 }
