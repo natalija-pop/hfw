@@ -14,6 +14,7 @@ Abstract:
 
 #include "rule_enumerations.h"
 #include "string_helper.h"
+#include "rule_settings.h"
 #include "enums.h"
 #include <windows.h>
 #include <winsock.h> 
@@ -389,6 +390,7 @@ void EnumerateFwRulesMenu(NET_FW_RULE_DIRECTION fwDirection)
         cout << "\nActions:\n"
             << "1. Enable\\Disable a rule\n"
             << "2. Delete rule\n"
+            << "3. Update rule\n"
             << "0. Exit\n";
 
         cin.clear();
@@ -415,6 +417,13 @@ void EnumerateFwRulesMenu(NET_FW_RULE_DIRECTION fwDirection)
                     }
 					break;
 				}
+            case 3:
+                {
+                    index = SelectFwRuleIndex(fwNetRulesSize);
+                    CComPtr<INetFwRule> toUpdate = fwNetRules.at(index);
+                    UpdateFwRule(toUpdate, index);
+                    return;
+                }
 	        default: cout << "Invalid menu item selected. Try again.\n"; break;
         }
     }

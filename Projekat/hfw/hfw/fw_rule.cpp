@@ -1,23 +1,22 @@
 #include "fw_rule.h"
 
-FwRule::FwRule(): bstrName(nullptr),
-    bstrDescription(nullptr),
-    bstrGroup(nullptr),
-    bstrApplicationName(nullptr),
-    bstrLocalPorts(nullptr),
-    bstrLocalAddresses(nullptr),
-    bstrRemotePorts(nullptr),
-    bstrRemoteAddresses(nullptr),
-    bstrICMPTypeCode(nullptr),
-    bstrInterfaceTypes(nullptr),
-    lProtocol(0),
-    lProfilesBitMask(0),
-    bEnabled(VARIANT_FALSE),
-    bEdgeTraversal(VARIANT_FALSE),
-    direction(NET_FW_RULE_DIR_IN),
-    action(NET_FW_ACTION_ALLOW)
+FwRule::FwRule() : bstrName(nullptr),
+bstrDescription(nullptr),
+bstrGroup(nullptr),
+bstrApplicationName(nullptr),
+bstrLocalPorts(nullptr),
+bstrLocalAddresses(nullptr),
+bstrRemotePorts(nullptr),
+bstrRemoteAddresses(nullptr),
+bstrICMPTypeCode(nullptr),
+bstrInterfaceTypes(nullptr),
+lProtocol(256),
+lProfilesBitMask(0),
+bEnabled(VARIANT_FALSE),
+bEdgeTraversal(VARIANT_FALSE),
+direction(NET_FW_RULE_DIR_IN),
+action(NET_FW_ACTION_BLOCK) 
 {
-    VariantInit(&interfaceArray);
 }
 
 BSTR FwRule::getName() const { return bstrName; }

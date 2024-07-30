@@ -50,6 +50,19 @@ void WFCOMCleanup(INetFwPolicy2* pNetFwPolicy2)
     }
 }
 
+void EnterInterface(const std::string interfaceType, std::string& sInterfaces)
+{
+    cout << interfaceType << " (y/n): ";
+    if (EnterYesNoInput() == 'y')
+    {
+        if (!sInterfaces.empty())
+        {
+            sInterfaces += ",";
+        }
+        sInterfaces += interfaceType;
+    }
+}
+
 LONG EnterFwRuleProtocolNumber()
 {
     LONG lProtocolNumber;
@@ -67,12 +80,12 @@ LONG EnterFwRuleProtocolNumber()
     {
         cin >> lProtocolNumber;
 
-        if (lProtocolNumber < -1 or lProtocolNumber > 255)
+        if (lProtocolNumber < 0 or lProtocolNumber > 256)
         {
             cout << "Invalid enter for protocol number. Try again.\n";
         }
     }
-    while (lProtocolNumber < -1 or lProtocolNumber > 255);
+    while (lProtocolNumber < 0 or lProtocolNumber > 256);
     return lProtocolNumber;
 }
 
@@ -200,4 +213,26 @@ BSTR EnterFwRulePorts(bool isLocal, bool isProtocolTCP)
 BSTR EnterFwRuleICMPTypes(bool isVersion4)
 {
     return EnterICMPTypes(isVersion4);
+}
+
+BSTR EnterFwRuleInterfaceTypes()
+{
+    string sInterfaces;
+    cout << "INTERFACES\n";
+    cout << "Choose interface types this rule applies to:\nAcceptable values are \"RemoteAccess\", \"Wireless\", \"Lan\", and \"All\"\n";
+    cout << "All (y/n):";
+    if (EnterYesNoInput() == 'y') 
+    {
+        sInterfaces = "All";
+        goto ConvertToBSTR;
+    }
+
+    EnterInterface("RemoteAccess", sInterfaces);
+    
+    EnterInterface("Wireless", sInterfaces);
+    
+    EnterInterface("Lan", sInterfaces);
+    
+ConvertToBSTR:
+    return ConvertStringToBSTR(sInterfaces);
 }

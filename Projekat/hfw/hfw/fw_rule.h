@@ -21,8 +21,6 @@ class FwRule
     VARIANT_BOOL bEnabled;
     VARIANT_BOOL bEdgeTraversal;
 
-    VARIANT interfaceArray;
-
     NET_FW_RULE_DIRECTION direction;
     NET_FW_ACTION action;
 
@@ -45,7 +43,6 @@ public:
     BSTR getLocalAddresses() const;
     BSTR getRemoteAddresses() const;
     BSTR getInterfaceTypes() const;
-    BSTR getGrouping() const;
 
     void setName(BSTR name);
     void setDescription(BSTR description);

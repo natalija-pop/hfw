@@ -14,13 +14,14 @@ NET_FW_ACTION EnterFwRuleAction();
 BSTR EnterFwRuleName();
 BSTR EnterFwRuleDescription();
 BSTR EnterFwRuleAppName();
+BSTR EnterFwRuleInterfaceTypes();
+void EnterInterface(const std::string interfaceType, std::string& sInterfaces);
 BSTR EnterFwRuleICMPTypes(bool isVersion4 = true);
 BSTR EnterFwRulePorts(bool isLocal, bool isProtocolTCP);
 
 namespace protocol_numbers
 {
 	const std::vector<std::string> protocols{
-	    "-1. Any",
 	    "0. HOPOPT",
 	    "1. ICMPv4",
 	    "2. IGMP",
@@ -35,6 +36,7 @@ namespace protocol_numbers
 	    "60. IPv6-Opts",
 	    "112. VRRP",
 	    "113. PGM",
-	    "115. L2TP"
+	    "115. L2TP",
+		"256. Any"
 	};
 }
