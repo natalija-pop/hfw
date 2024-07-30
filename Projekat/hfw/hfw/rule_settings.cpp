@@ -4,7 +4,9 @@
 #include <string>
 
 #include "helper.h"
+#include "string_helper.h"
 #include "enums.h"
+#include "rule_enumerations.h"
 
 using namespace std;
 
@@ -262,5 +264,472 @@ void AddNewRule()
 	if (bstrICMPTypeCode != nullptr) 
 	{
 		SysFreeString(bstrICMPTypeCode);
+	}
+}
+
+void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
+{
+	HRESULT hr = S_OK;
+
+	BSTR bstrProperty;
+	LONG lProperty;
+	VARIANT_BOOL enabled;
+	NET_FW_RULE_DIRECTION direction;
+	NET_FW_ACTION action;
+
+	hr = fwRule->get_Name(&bstrProperty);
+	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getName())
+	{
+		hr = fwRule->put_Name(updatedFwRule.getName());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_Name failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_Description(&bstrProperty);
+	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getDescription())
+	{
+		hr = fwRule->put_Description(updatedFwRule.getDescription());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_Description failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_ApplicationName(&bstrProperty);
+	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getApplicationName())
+	{
+		hr = fwRule->put_ApplicationName(updatedFwRule.getApplicationName());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_ApplicationName failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_Profiles(&lProperty);
+	if (SUCCEEDED(hr) && lProperty != updatedFwRule.getProfilesBitMask())
+	{
+		hr = fwRule->put_Profiles(updatedFwRule.getProfilesBitMask());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_Profiles failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_Direction(&direction);
+	if (SUCCEEDED(hr) && direction != updatedFwRule.getDirection())
+	{
+		hr = fwRule->put_Direction(updatedFwRule.getDirection());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_Direction failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_Action(&action);
+	if (SUCCEEDED(hr) && action != updatedFwRule.getAction())
+	{
+		hr = fwRule->put_Action(updatedFwRule.getAction());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_Action failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_Protocol(&lProperty);
+	if (SUCCEEDED(hr))
+	{
+		if (lProperty != updatedFwRule.getProtocol())
+		{
+			if (updatedFwRule.getProtocol() == IP_PROTOCOL_TCP or updatedFwRule.getProtocol() == IP_PROTOCOL_UDP)
+			{
+				hr = fwRule->put_IcmpTypesAndCodes(nullptr);
+				if (FAILED(hr))
+				{
+					wprintf(L"put_IcmpTypesAndCodes failed: 0x%08lx\n", hr);
+				}
+
+				hr = fwRule->put_Protocol(updatedFwRule.getProtocol());
+				if (FAILED(hr))
+				{
+					wprintf(L"put_Protocol failed: 0x%08lx\n", hr);
+				}
+
+				hr = fwRule->get_LocalPorts(&bstrProperty);
+				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getLocalPorts())
+				{
+					hr = fwRule->put_LocalPorts(updatedFwRule.getLocalPorts());
+					if (FAILED(hr))
+					{
+						wprintf(L"put_LocalPorts failed: 0x%08lx\n", hr);
+					}
+				}
+
+				hr = fwRule->get_RemotePorts(&bstrProperty);
+				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getRemotePorts())
+				{
+					hr = fwRule->put_RemotePorts(updatedFwRule.getRemotePorts());
+					if (FAILED(hr))
+					{
+						wprintf(L"put_RemotePorts failed: 0x%08lx\n", hr);
+					}
+				}
+			}
+			else if (updatedFwRule.getProtocol() == IP_PROTOCOL_ICMP4 or updatedFwRule.getProtocol() == IP_PROTOCOL_ICMP6)
+			{
+				hr = fwRule->put_LocalPorts(nullptr);
+				hr = fwRule->put_RemotePorts(nullptr);
+				hr = fwRule->put_Protocol(updatedFwRule.getProtocol());
+				if (FAILED(hr))
+				{
+					wprintf(L"put_Protocol failed: 0x%08lx\n", hr);
+				}
+				hr = fwRule->get_IcmpTypesAndCodes(&bstrProperty);
+				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getICMPTypeCode())
+				{
+					hr = fwRule->put_IcmpTypesAndCodes(updatedFwRule.getICMPTypeCode());
+					if (FAILED(hr))
+					{
+						wprintf(L"put_IcmpTypesAndCodes failed: 0x%08lx\n", hr);
+					}
+				}
+			}
+			else
+			{
+				hr = fwRule->put_LocalPorts(nullptr);
+				hr = fwRule->put_RemotePorts(nullptr);
+				hr = fwRule->put_IcmpTypesAndCodes(nullptr);
+				hr = fwRule->put_Protocol(updatedFwRule.getProtocol());
+				if (FAILED(hr))
+				{
+					wprintf(L"put_Protocol failed: 0x%08lx\n", hr);
+				}
+			}
+		}
+		else
+		{
+			if (lProperty == IP_PROTOCOL_TCP or lProperty == IP_PROTOCOL_UDP) 
+			{
+				hr = fwRule->get_LocalPorts(&bstrProperty);
+				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getLocalPorts())
+				{
+					hr = fwRule->put_LocalPorts(updatedFwRule.getLocalPorts());
+					if (FAILED(hr))
+					{
+						wprintf(L"put_LocalPorts failed: 0x%08lx\n", hr);
+					}
+				}
+
+				hr = fwRule->get_RemotePorts(&bstrProperty);
+				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getRemotePorts())
+				{
+					hr = fwRule->put_RemotePorts(updatedFwRule.getRemotePorts());
+					if (FAILED(hr))
+					{
+						wprintf(L"put_RemotePorts failed: 0x%08lx\n", hr);
+					}
+				}
+			}
+			else if (lProperty == IP_PROTOCOL_ICMP4 or lProperty == IP_PROTOCOL_ICMP6)
+			{
+				hr = fwRule->get_IcmpTypesAndCodes(&bstrProperty);
+				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getICMPTypeCode())
+				{
+					hr = fwRule->put_IcmpTypesAndCodes(updatedFwRule.getICMPTypeCode());
+					if (FAILED(hr))
+					{
+						wprintf(L"put_IcmpTypesAndCodes failed: 0x%08lx\n", hr);
+					}
+				}
+			}
+		}
+	}
+
+	hr = fwRule->get_LocalAddresses(&bstrProperty);
+	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getLocalAddresses())
+	{
+		hr = fwRule->put_LocalAddresses(updatedFwRule.getLocalAddresses());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_LocalAddresses failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_RemoteAddresses(&bstrProperty);
+	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getRemoteAddresses())
+	{
+		hr = fwRule->put_RemoteAddresses(updatedFwRule.getRemoteAddresses());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_RemoteAddresses failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_InterfaceTypes(&bstrProperty);
+	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getInterfaceTypes())
+	{
+		hr = fwRule->put_InterfaceTypes(updatedFwRule.getInterfaceTypes());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_InterfaceTypes failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_Enabled(&enabled);
+	if (SUCCEEDED(hr) && enabled != updatedFwRule.getEnabled())
+	{
+		hr = fwRule->put_Enabled(updatedFwRule.getEnabled());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_Enabled failed: 0x%08lx\n", hr);
+		}
+	}
+
+	hr = fwRule->get_EdgeTraversal(&enabled);
+	if (SUCCEEDED(hr) && enabled != updatedFwRule.getEdgeTraversal())
+	{
+		hr = fwRule->put_EdgeTraversal(updatedFwRule.getEdgeTraversal());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_EdgeTraversal failed: 0x%08lx\n", hr);
+		}
+	}
+}
+
+
+void UpdateFwRule(CComPtr<INetFwRule> fwRule, int position)
+{
+	FwRule updatedFwRule;
+	DumpFWRulesInCollection(fwRule, position);
+	UpdatePropertiesDialog(fwRule);
+}
+
+void SetFwRuleInitialValues(CComPtr<INetFwRule> fwRule, FwRule& updatedRule)
+{
+	HRESULT hr = S_OK;
+
+	CComBSTR bstrProperty;
+	LONG lProperty;
+	VARIANT_BOOL boolProperty;
+	NET_FW_RULE_DIRECTION direction;
+	NET_FW_ACTION action;
+
+	hr = fwRule->get_Name(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setName(bstrProperty);
+	}
+
+	hr = fwRule->get_Description(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setDescription(bstrProperty);
+	}
+
+	hr = fwRule->get_Grouping(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setGroup(bstrProperty);
+	}
+
+	hr = fwRule->get_ApplicationName(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setApplicationName(bstrProperty);
+	}
+
+	hr = fwRule->get_LocalPorts(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setLocalPorts(bstrProperty);
+	}
+
+	hr = fwRule->get_RemotePorts(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setRemotePorts(bstrProperty);
+	}
+
+	hr = fwRule->get_IcmpTypesAndCodes(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setICMPTypeCode(bstrProperty);
+	}
+
+	hr = fwRule->get_Protocol(&lProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setProtocol(lProperty);
+	}
+
+	hr = fwRule->get_Profiles(&lProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setProfilesBitMask(lProperty);
+	}
+
+	hr = fwRule->get_Direction(&direction);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setDirection(direction);
+	}
+
+	hr = fwRule->get_Action(&action);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setAction(action);
+	}
+
+	hr = fwRule->get_Enabled(&boolProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setEnabled(boolProperty);
+	}
+
+	hr = fwRule->get_EdgeTraversal(&boolProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setEdgeTraversal(boolProperty);
+	}
+
+	hr = fwRule->get_LocalAddresses(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setLocalAddresses(bstrProperty);
+	}
+
+	hr = fwRule->get_RemoteAddresses(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setRemoteAddresses(bstrProperty);
+	}
+
+	hr = fwRule->get_InterfaceTypes(&bstrProperty);
+	if (SUCCEEDED(hr))
+	{
+		updatedRule.setInterfaceTypes(bstrProperty);
+	}
+}
+
+void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
+{
+	FwRule updatedFwRule = FwRule();
+	LONG lProtocol;
+	VARIANT_BOOL enabled;
+	string strEnabled;
+	HRESULT hr = S_OK;
+
+	SetFwRuleInitialValues(fwRule, updatedFwRule);
+
+	hr = fwRule->get_Protocol(&lProtocol);
+	if(FAILED(hr)) 
+	{
+		wprintf(L"get_Protocol failed: 0x%08lx\n", hr);
+		wprintf(L"UpdateFwRule failed\n");
+		return;
+	}
+
+	cout << "Change Application Name (y/n): ";
+	if (EnterYesNoInput() == 'y') 
+	{
+		updatedFwRule.setApplicationName(EnterFwRuleAppName());
+	}
+
+	cout << "Change Protocol (y/n): ";
+	if (EnterYesNoInput() == 'y') 
+	{
+		lProtocol = EnterFwRuleProtocolNumber();
+		updatedFwRule.setProtocol(lProtocol);
+	}
+
+	if (lProtocol == IP_PROTOCOL_TCP or lProtocol == IP_PROTOCOL_UDP)
+	{
+		cout << "Change Local Ports (y/n): ";
+		if (EnterYesNoInput() == 'y') 
+		{
+			updatedFwRule.setLocalPorts(EnterFwRulePorts(true, lProtocol == IP_PROTOCOL_TCP));
+		}
+
+		cout << "Change Remote Ports (y/n): ";
+		if (EnterYesNoInput() == 'y') 
+		{
+			updatedFwRule.setRemotePorts(EnterFwRulePorts(false, lProtocol == IP_PROTOCOL_TCP));
+		}
+	}
+
+	else if (lProtocol == IP_PROTOCOL_ICMP4 or lProtocol == IP_PROTOCOL_ICMP6)
+	{
+		cout << "Change ICMP Types (y/n): ";
+		if (EnterYesNoInput() == 'y')
+		{
+			updatedFwRule.setICMPTypeCode(EnterFwRuleICMPTypes(lProtocol == 1));
+		}
+	}
+
+	cout << "Change Direction (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setDirection(EnterFwRuleDirection());
+	}
+
+	cout << "Change Action (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setAction(EnterFwRuleAction());
+	}
+
+	cout << "Change Profiles (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setProfilesBitMask(EnterFwRuleProfiles());
+	}
+
+	cout << "Change Name (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setName(EnterFwRuleName());
+	}
+
+	cout << "Change Description (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setDescription(EnterFwRuleDescription());
+	}
+
+	hr = fwRule->get_Enabled(&enabled);
+	if (SUCCEEDED(hr)) 
+	{
+		strEnabled = enabled ? "enabled" : "disabled";
+		cout << "Firewall rule is currently " << strEnabled << ". Change it (y/n): ";
+		if (EnterYesNoInput() == 'y')
+		{
+			updatedFwRule.setEnabled(~enabled);
+		}
+	}
+
+	hr = fwRule->get_EdgeTraversal(&enabled);
+	if (SUCCEEDED(hr))
+	{
+		strEnabled = enabled ? "enabled" : "disabled";
+		cout << "Edge Traversal is currently " << strEnabled << ". Change it (y/n): ";
+		if (EnterYesNoInput() == 'y')
+		{
+			updatedFwRule.setEdgeTraversal(~enabled);
+		}
+	}
+
+	cout << "Change Interface types (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		updatedFwRule.setInterfaceTypes(EnterFwRuleInterfaceTypes());
+	}
+
+	//TODO: Change Local/Remote Addresses
+
+	cout << "Save changes (y/n): ";
+	if (EnterYesNoInput() == 'y') 
+	{
+		UpdateFwRuleChanges(fwRule, updatedFwRule);
 	}
 }

@@ -9,11 +9,17 @@ class FwRule
     BSTR bstrGroup;
     BSTR bstrApplicationName;
     BSTR bstrLocalPorts;
+    BSTR bstrLocalAddresses;
     BSTR bstrRemotePorts;
+    BSTR bstrRemoteAddresses;
     BSTR bstrICMPTypeCode; // Only for ICMP rule
+    BSTR bstrInterfaceTypes;
 
     LONG lProtocol;
     LONG lProfilesBitMask;
+
+    VARIANT_BOOL bEnabled;
+    VARIANT_BOOL bEdgeTraversal;
 
     NET_FW_RULE_DIRECTION direction;
     NET_FW_ACTION action;
@@ -32,6 +38,11 @@ public:
     LONG getProfilesBitMask() const;
     NET_FW_RULE_DIRECTION getDirection() const;
     NET_FW_ACTION getAction() const;
+    VARIANT_BOOL getEnabled() const;
+    VARIANT_BOOL getEdgeTraversal() const;
+    BSTR getLocalAddresses() const;
+    BSTR getRemoteAddresses() const;
+    BSTR getInterfaceTypes() const;
 
     void setName(BSTR name);
     void setDescription(BSTR description);
@@ -44,4 +55,9 @@ public:
     void setProfilesBitMask(LONG bitmask);
     void setDirection(NET_FW_RULE_DIRECTION direction);
     void setAction(NET_FW_ACTION action);
+    void setEnabled(VARIANT_BOOL enabled);
+    void setEdgeTraversal(VARIANT_BOOL edgeTraversal);
+    void setLocalAddresses(BSTR localAddresses);
+    void setRemoteAddresses(BSTR remoteAddresses);
+    void setInterfaceTypes(BSTR interfaceTypes);
 };
