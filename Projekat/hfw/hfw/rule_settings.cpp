@@ -267,12 +267,12 @@ void AddNewRule()
 	}
 }
 
-void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
+void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, const FwRule& updatedFwRule)
 {
 	HRESULT hr = S_OK;
 
-	BSTR bstrProperty;
-	LONG lProperty;
+	CComBSTR bstrProperty;
+	long lProperty = 0;
 	VARIANT_BOOL enabled;
 	NET_FW_RULE_DIRECTION direction;
 	NET_FW_ACTION action;
@@ -286,6 +286,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 			wprintf(L"put_Name failed: 0x%08lx\n", hr);
 		}
 	}
+	bstrProperty.Empty(); // Clear the BSTR
 
 	hr = fwRule->get_Description(&bstrProperty);
 	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getDescription())
@@ -296,6 +297,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 			wprintf(L"put_Description failed: 0x%08lx\n", hr);
 		}
 	}
+	bstrProperty.Empty(); // Clear the BSTR
 
 	hr = fwRule->get_ApplicationName(&bstrProperty);
 	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getApplicationName())
@@ -306,6 +308,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 			wprintf(L"put_ApplicationName failed: 0x%08lx\n", hr);
 		}
 	}
+	bstrProperty.Empty(); // Clear the BSTR
 
 	hr = fwRule->get_Profiles(&lProperty);
 	if (SUCCEEDED(hr) && lProperty != updatedFwRule.getProfilesBitMask())
@@ -365,6 +368,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 						wprintf(L"put_LocalPorts failed: 0x%08lx\n", hr);
 					}
 				}
+				bstrProperty.Empty(); // Clear the BSTR
 
 				hr = fwRule->get_RemotePorts(&bstrProperty);
 				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getRemotePorts())
@@ -375,6 +379,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 						wprintf(L"put_RemotePorts failed: 0x%08lx\n", hr);
 					}
 				}
+				bstrProperty.Empty(); // Clear the BSTR
 			}
 			else if (updatedFwRule.getProtocol() == IP_PROTOCOL_ICMP4 or updatedFwRule.getProtocol() == IP_PROTOCOL_ICMP6)
 			{
@@ -394,6 +399,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 						wprintf(L"put_IcmpTypesAndCodes failed: 0x%08lx\n", hr);
 					}
 				}
+				bstrProperty.Empty(); // Clear the BSTR
 			}
 			else
 			{
@@ -409,7 +415,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 		}
 		else
 		{
-			if (lProperty == IP_PROTOCOL_TCP or lProperty == IP_PROTOCOL_UDP) 
+			if (lProperty == IP_PROTOCOL_TCP or lProperty == IP_PROTOCOL_UDP)
 			{
 				hr = fwRule->get_LocalPorts(&bstrProperty);
 				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getLocalPorts())
@@ -420,6 +426,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 						wprintf(L"put_LocalPorts failed: 0x%08lx\n", hr);
 					}
 				}
+				bstrProperty.Empty(); // Clear the BSTR
 
 				hr = fwRule->get_RemotePorts(&bstrProperty);
 				if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getRemotePorts())
@@ -430,6 +437,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 						wprintf(L"put_RemotePorts failed: 0x%08lx\n", hr);
 					}
 				}
+				bstrProperty.Empty(); // Clear the BSTR
 			}
 			else if (lProperty == IP_PROTOCOL_ICMP4 or lProperty == IP_PROTOCOL_ICMP6)
 			{
@@ -442,6 +450,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 						wprintf(L"put_IcmpTypesAndCodes failed: 0x%08lx\n", hr);
 					}
 				}
+				bstrProperty.Empty(); // Clear the BSTR
 			}
 		}
 	}
@@ -455,6 +464,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 			wprintf(L"put_LocalAddresses failed: 0x%08lx\n", hr);
 		}
 	}
+	bstrProperty.Empty(); // Clear the BSTR
 
 	hr = fwRule->get_RemoteAddresses(&bstrProperty);
 	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getRemoteAddresses())
@@ -465,6 +475,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 			wprintf(L"put_RemoteAddresses failed: 0x%08lx\n", hr);
 		}
 	}
+	bstrProperty.Empty(); // Clear the BSTR
 
 	hr = fwRule->get_InterfaceTypes(&bstrProperty);
 	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getInterfaceTypes())
@@ -475,6 +486,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 			wprintf(L"put_InterfaceTypes failed: 0x%08lx\n", hr);
 		}
 	}
+	bstrProperty.Empty(); // Clear the BSTR
 
 	hr = fwRule->get_Enabled(&enabled);
 	if (SUCCEEDED(hr) && enabled != updatedFwRule.getEnabled())
@@ -497,7 +509,6 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, FwRule updatedFwRule)
 	}
 }
 
-
 void UpdateFwRule(CComPtr<INetFwRule> fwRule, int position)
 {
 	FwRule updatedFwRule;
@@ -510,7 +521,8 @@ void SetFwRuleInitialValues(CComPtr<INetFwRule> fwRule, FwRule& updatedRule)
 	HRESULT hr = S_OK;
 
 	CComBSTR bstrProperty;
-	LONG lProperty;
+	LONG lProperty = 0;
+	long lProfilesBitMask = 0;
 	VARIANT_BOOL boolProperty;
 	NET_FW_RULE_DIRECTION direction;
 	NET_FW_ACTION action;
@@ -563,10 +575,10 @@ void SetFwRuleInitialValues(CComPtr<INetFwRule> fwRule, FwRule& updatedRule)
 		updatedRule.setProtocol(lProperty);
 	}
 
-	hr = fwRule->get_Profiles(&lProperty);
+	hr = fwRule->get_Profiles(&lProfilesBitMask);
 	if (SUCCEEDED(hr))
 	{
-		updatedRule.setProfilesBitMask(lProperty);
+		updatedRule.setProfilesBitMask(lProfilesBitMask);
 	}
 
 	hr = fwRule->get_Direction(&direction);
