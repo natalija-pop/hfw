@@ -12,7 +12,7 @@ using namespace  std;
 
 bool IsPortOutOfRange(const int portNumber)
 {
-    return portNumber < 0 or portNumber > 65535;
+    return portNumber < 0 or portNumber > MAX_PORT_NUMBER;
 }
 
 bool IsPortRangeValid(const int firstPort, const int secondPort)
@@ -90,7 +90,6 @@ string EnterFwRuleSpecificPorts()
     do
     {
         cin.clear();
-        cin.ignore(INT_MAX, '\n');
         getline(std::cin, sPorts);
         arePortsValid = AreSpecificPortsValid(sPorts);
         if (!arePortsValid)

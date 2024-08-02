@@ -80,12 +80,12 @@ LONG EnterFwRuleProtocolNumber()
     {
         cin >> lProtocolNumber;
 
-        if (lProtocolNumber < 0 or lProtocolNumber > 256)
+        if (lProtocolNumber < 0 or lProtocolNumber > NET_FW_IP_PROTOCOL_ANY)
         {
             cout << "Invalid enter for protocol number. Try again.\n";
         }
     }
-    while (lProtocolNumber < 0 or lProtocolNumber > 256);
+    while (lProtocolNumber < 0 or lProtocolNumber > NET_FW_IP_PROTOCOL_ANY);
     return lProtocolNumber;
 }
 
@@ -170,7 +170,6 @@ BSTR EnterFwRuleAppName()
 	cout << "Application name (Leave empty for all applications): ";
 
     cin.clear();
-    cin.ignore(INT_MAX, '\n');
 	getline(std::cin, sApplicationName);
     return ConvertStringToBSTR(sApplicationName);
 }
@@ -183,14 +182,13 @@ BSTR EnterFwRuleName()
     do
     {
         cin.clear();
-        cin.ignore(INT_MAX, '\n');
         getline(cin, sName);
-        if (sName.find_first_of('|') != string::npos or sName == "all" or sName.length() < 1)
+        if (sName.find_first_of('|') != string::npos or sName == "all" or sName.empty())
         {
             cout << "Invalid enter for name. Try again.\n";
         }
     }
-    while (sName.find_first_of('|') != string::npos or sName == "all" or sName.length() < 1);
+    while (sName.find_first_of('|') != string::npos or sName == "all" or sName.empty());
     return ConvertStringToBSTR(sName);
 }
 
@@ -201,7 +199,6 @@ BSTR EnterFwRuleDescription()
     do
     {
         cin.clear();
-        cin.ignore(INT_MAX, '\n');
         getline(cin, sDescription);
         if (sDescription.find_first_of('|') != string::npos)
         {
