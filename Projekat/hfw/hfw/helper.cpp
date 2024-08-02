@@ -185,12 +185,12 @@ BSTR EnterFwRuleName()
         cin.clear();
         cin.ignore(INT_MAX, '\n');
         getline(cin, sName);
-        if (sName.find_first_of('|') != string::npos or sName == "all")
+        if (sName.find_first_of('|') != string::npos or sName == "all" or sName.length() < 1)
         {
             cout << "Invalid enter for name. Try again.\n";
         }
     }
-    while (sName.find_first_of('|') != string::npos or sName == "all");
+    while (sName.find_first_of('|') != string::npos or sName == "all" or sName.length() < 1);
     return ConvertStringToBSTR(sName);
 }
 
