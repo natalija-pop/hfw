@@ -94,26 +94,33 @@ LONG EnterFwRuleProfiles()
 	long fwRuleProfilesBitMask = 0;
     cout << "PROFILES\n";
     cout << "When does this rule apply?\n";
+    do
+    {
+        cout << "DOMAIN\nApplies when computer is connected to its corporate domain (y/n): ";
+        char input = EnterYesNoInput();
+        if (input == 'y')
+        {
+            fwRuleProfilesBitMask |= NET_FW_PROFILE2_DOMAIN;
+        }
+        
+        cout << "PRIVATE\nApplies when computer is connected to a private network location, \nsuch as home or work place (y/n): ";
+        input = EnterYesNoInput();
+        if (input == 'y')
+        {
+            fwRuleProfilesBitMask |= NET_FW_PROFILE2_PRIVATE;
+        }
+        
+        cout << "PUBLIC\nApplies when computer is connected to a public network location (y/n): ";
+        input = EnterYesNoInput();
+        if (input == 'y')
+        {
+            fwRuleProfilesBitMask |= NET_FW_PROFILE2_PUBLIC;
+        }
 
-	cout << "DOMAIN\nApplies when computer is connected to its corporate domain (y/n): ";
-    char input = EnterYesNoInput();
-	if(input == 'y')
-    {
-        fwRuleProfilesBitMask |= NET_FW_PROFILE2_DOMAIN;
-    }
-
-    cout << "PRIVATE\nApplies when computer is connected to a private network location, \nsuch as home or work place (y/n): ";
-    input = EnterYesNoInput();
-    if (input == 'y')
-    {
-        fwRuleProfilesBitMask |= NET_FW_PROFILE2_PRIVATE;
-    }
-	cout << "PUBLIC\nApplies when computer is connected to a public network location (y/n): ";
-    input = EnterYesNoInput();
-    if (input == 'y')
-    {
-        fwRuleProfilesBitMask |= NET_FW_PROFILE2_PUBLIC;
-    }
+        if (fwRuleProfilesBitMask == 0) {
+            cout << "At least one profile must be specified. Try again\n";
+        }
+    } while (fwRuleProfilesBitMask == 0);
     return fwRuleProfilesBitMask;
 }
 
