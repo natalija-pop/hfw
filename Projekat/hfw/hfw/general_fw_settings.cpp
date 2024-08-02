@@ -155,7 +155,7 @@ void ManageProfileState(NET_FW_PROFILE_TYPE2 profileType, bool enabled)
     }
 
 
-    if(profileType == NET_FW_PROFILE2_DOMAIN or profileType == NET_FW_PROFILE2_ALL)
+    if ((profileType & NET_FW_PROFILE2_DOMAIN) != 0 or (profileType & NET_FW_PROFILE2_ALL) != 0)
     {
         hr = pNetFwPolicy2->put_FirewallEnabled(NET_FW_PROFILE2_DOMAIN, enabled);
         if (FAILED(hr))
@@ -173,7 +173,7 @@ void ManageProfileState(NET_FW_PROFILE_TYPE2 profileType, bool enabled)
         }
     }
 
-    if (profileType == NET_FW_PROFILE2_PRIVATE or profileType == NET_FW_PROFILE2_ALL)
+    if ((profileType & NET_FW_PROFILE2_PRIVATE) != 0 or (profileType & NET_FW_PROFILE2_ALL) != 0)
     {
         hr = pNetFwPolicy2->put_FirewallEnabled(NET_FW_PROFILE2_PRIVATE, enabled);
         if (FAILED(hr))
@@ -191,7 +191,7 @@ void ManageProfileState(NET_FW_PROFILE_TYPE2 profileType, bool enabled)
         }
     }
 
-    if (profileType == NET_FW_PROFILE2_PUBLIC or profileType == NET_FW_PROFILE2_ALL)
+    if ((profileType & NET_FW_PROFILE2_PUBLIC) != 0 or (profileType & NET_FW_PROFILE2_ALL) != 0)
     {
         hr = pNetFwPolicy2->put_FirewallEnabled(NET_FW_PROFILE2_PUBLIC, enabled);
         if (FAILED(hr))
@@ -357,7 +357,7 @@ void UpdateSettingsPerProfile(INetFwPolicy2* pNetFwPolicy2) {
 	const NET_FW_PROFILE_TYPE2 profileType = getProfileType();
 
 	const VARIANT_BOOL bIsFwEnabled = getYesNoInput("Turn Firewall on");
-	const VARIANT_BOOL bIsInboundEnabled = !getYesNoInput("Block inbound connections");
+	const VARIANT_BOOL bIsInboundEnabled = ~getYesNoInput("Block inbound connections");
 	const VARIANT_BOOL bAreNotificationsDisabled = getYesNoInput("Disable notifications");
 	const VARIANT_BOOL bIsUnicastResponseDisabled = getYesNoInput("Disable unicast to multicast broadcast");
 

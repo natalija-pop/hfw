@@ -75,7 +75,6 @@ BSTR EnterICMPTypes(bool isVersion4)
 	do
     {
         cin.clear();
-        cin.ignore(INT_MAX, '\n');
         getline(std::cin, sIcmpTypes);
         if (sIcmpTypes == "*") return CComBSTR(sIcmpTypes.c_str()).Detach();
         areTypesValid = IsICMPValid(sIcmpTypes);
