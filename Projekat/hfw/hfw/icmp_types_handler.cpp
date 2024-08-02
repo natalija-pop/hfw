@@ -6,6 +6,7 @@
 #include "string_helper.h"
 #include <regex>
 #include <string>
+#include <set>
 
 using namespace std;
 
@@ -30,8 +31,15 @@ string ICMPTypesCodesBuilder(const std::string& str)
 
 bool IsICMPValid(const std::string& str)
 {
-    const string inputCopy = str.back() == ',' ? str : str + ',';
-    return regex_match(inputCopy, std::basic_regex<char>("([0-9]+,)+"));
+    string inputCopy = str.back() == ',' ? str : str + ',';
+    if (!regex_match(inputCopy, std::basic_regex<char>("([0-9]+,)+"))) return false;
+    
+    inputCopy.erase(std::remove_if(inputCopy.begin(), inputCopy.end(), [](char c) {
+        return c == ',';
+    }), inputCopy.end());
+
+    const set<char> uniquenessChecker(inputCopy.begin(), inputCopy.end());
+    return uniquenessChecker.size() == inputCopy.size();
 }
 
 void DisplayICMPTypes(bool isVersion4)
