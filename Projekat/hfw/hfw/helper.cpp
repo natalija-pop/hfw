@@ -191,7 +191,7 @@ BSTR EnterFwRuleName()
         getline(cin, sName);
         if (sName.find_first_of('|') != string::npos or sName == "all" or sName.empty())
         {
-            cout << "Invalid enter for name. Try again.\n";
+            cout << "Name must not contain delimiter '|', can't be 'all' and should not be empty. Try again.\n";
         }
     }
     while (sName.find_first_of('|') != string::npos or sName == "all" or sName.empty());

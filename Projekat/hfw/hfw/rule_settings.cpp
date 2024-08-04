@@ -272,6 +272,7 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, const FwRule& updatedFwRule
 	HRESULT hr = S_OK;
 
 	CComBSTR bstrProperty;
+	BSTR bstrInterfaceType = nullptr;
 	long lProperty = 0;
 	VARIANT_BOOL enabled;
 	NET_FW_RULE_DIRECTION direction;
@@ -480,11 +481,17 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, const FwRule& updatedFwRule
 	hr = fwRule->get_InterfaceTypes(&bstrProperty);
 	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getInterfaceTypes())
 	{
-		hr = fwRule->put_InterfaceTypes(updatedFwRule.getInterfaceTypes());
+		bstrInterfaceType = updatedFwRule.getInterfaceTypes();
+		if (IsEmpty(bstrInterfaceType)) 
+		{
+			bstrInterfaceType = SysAllocString(L"All");
+		}
+		hr = fwRule->put_InterfaceTypes(bstrInterfaceType);
 		if (FAILED(hr))
 		{
 			wprintf(L"put_InterfaceTypes failed: 0x%08lx\n", hr);
 		}
+
 	}
 	bstrProperty.Empty(); // Clear the BSTR
 
@@ -507,11 +514,16 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, const FwRule& updatedFwRule
 			wprintf(L"put_EdgeTraversal failed: 0x%08lx\n", hr);
 		}
 	}
+
+
+//Cleanup:
+	if (bstrInterfaceType != nullptr) {
+		SysFreeString(bstrInterfaceType);
+	}
 }
 
 void UpdateFwRule(CComPtr<INetFwRule> fwRule, int position)
 {
-	FwRule updatedFwRule;
 	DumpFWRulesInCollection(fwRule, position);
 	UpdatePropertiesDialog(fwRule);
 }
@@ -627,9 +639,22 @@ void SetFwRuleInitialValues(CComPtr<INetFwRule> fwRule, FwRule& updatedRule)
 void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 {
 	FwRule updatedFwRule = FwRule();
+
+	BSTR bstrName = nullptr;
+	BSTR bstrDescription = nullptr;
+	BSTR bstrApplicationName = nullptr;
+	BSTR bstrLocalPorts = nullptr;
+	BSTR bstrRemotePorts = nullptr;
+	BSTR bstrICMPTypeCode = nullptr;
+	BSTR bstrInterfaceTypes = nullptr;
+
 	LONG lProtocol;
+	LONG lProfilesBitMask = 0;
+
+	NET_FW_RULE_DIRECTION direction;
+	NET_FW_ACTION action;
+
 	VARIANT_BOOL enabled;
-	string strEnabled;
 	HRESULT hr = S_OK;
 
 	SetFwRuleInitialValues(fwRule, updatedFwRule);
@@ -638,14 +663,14 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 	if(FAILED(hr)) 
 	{
 		wprintf(L"get_Protocol failed: 0x%08lx\n", hr);
-		wprintf(L"UpdateFwRule failed\n");
 		return;
 	}
 
 	cout << "Change Application Name (y/n): ";
 	if (EnterYesNoInput() == 'y') 
 	{
-		updatedFwRule.setApplicationName(EnterFwRuleAppName());
+		bstrApplicationName = EnterFwRuleAppName();
+		updatedFwRule.setApplicationName(IsEmpty(bstrApplicationName) ? nullptr : bstrApplicationName);
 	}
 
 	cout << "Change Protocol (y/n): ";
@@ -660,13 +685,15 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 		cout << "Change Local Ports (y/n): ";
 		if (EnterYesNoInput() == 'y') 
 		{
-			updatedFwRule.setLocalPorts(EnterFwRulePorts(true, lProtocol == IP_PROTOCOL_TCP));
+			bstrLocalPorts = EnterFwRulePorts(true, lProtocol == IP_PROTOCOL_TCP);
+			updatedFwRule.setLocalPorts(IsEmpty(bstrLocalPorts) ? SysAllocString(L"*") : bstrLocalPorts);
 		}
 
 		cout << "Change Remote Ports (y/n): ";
 		if (EnterYesNoInput() == 'y') 
 		{
-			updatedFwRule.setRemotePorts(EnterFwRulePorts(false, lProtocol == IP_PROTOCOL_TCP));
+			bstrRemotePorts = EnterFwRulePorts(false, lProtocol == IP_PROTOCOL_TCP);
+			updatedFwRule.setRemotePorts(IsEmpty(bstrRemotePorts) ? SysAllocString(L"*") : bstrRemotePorts);
 		}
 	}
 
@@ -675,39 +702,49 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 		cout << "Change ICMP Types (y/n): ";
 		if (EnterYesNoInput() == 'y')
 		{
-			updatedFwRule.setICMPTypeCode(EnterFwRuleICMPTypes(lProtocol == 1));
+			bstrICMPTypeCode = EnterFwRuleICMPTypes(lProtocol == 1);
+			updatedFwRule.setICMPTypeCode(IsEmpty(bstrICMPTypeCode) ? nullptr : bstrICMPTypeCode);
 		}
 	}
 
 	cout << "Change Direction (y/n): ";
 	if (EnterYesNoInput() == 'y')
 	{
-		updatedFwRule.setDirection(EnterFwRuleDirection());
+		direction = EnterFwRuleDirection();
+		updatedFwRule.setDirection(direction);
 	}
 
 	cout << "Change Action (y/n): ";
 	if (EnterYesNoInput() == 'y')
 	{
-		updatedFwRule.setAction(EnterFwRuleAction());
+		action = EnterFwRuleAction();
+		updatedFwRule.setAction(action);
 	}
 
 	cout << "Change Profiles (y/n): ";
 	if (EnterYesNoInput() == 'y')
 	{
-		updatedFwRule.setProfilesBitMask(EnterFwRuleProfiles());
+		lProfilesBitMask = EnterFwRuleProfiles();
+		updatedFwRule.setProfilesBitMask(lProfilesBitMask);
 	}
 
 	cout << "Change Name (y/n): ";
 	if (EnterYesNoInput() == 'y')
 	{
-		updatedFwRule.setName(EnterFwRuleName());
+		cin.ignore(INT_MAX, '\n');
+		bstrName = EnterFwRuleName();
+		updatedFwRule.setName(bstrName);
 	}
 
 	cout << "Change Description (y/n): ";
 	if (EnterYesNoInput() == 'y')
 	{
-		updatedFwRule.setDescription(EnterFwRuleDescription());
+		cin.ignore(INT_MAX, '\n');
+		bstrDescription = EnterFwRuleDescription();
+		updatedFwRule.setDescription(IsEmpty(bstrDescription) ? nullptr : bstrDescription);
 	}
+
+	string strEnabled;
 
 	hr = fwRule->get_Enabled(&enabled);
 	if (SUCCEEDED(hr)) 
@@ -734,7 +771,8 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 	cout << "Change Interface types (y/n): ";
 	if (EnterYesNoInput() == 'y')
 	{
-		updatedFwRule.setInterfaceTypes(EnterFwRuleInterfaceTypes());
+		bstrInterfaceTypes = EnterFwRuleInterfaceTypes();
+		updatedFwRule.setInterfaceTypes(IsEmpty(bstrInterfaceTypes) ? SysAllocString(L"All") : bstrInterfaceTypes);
 	}
 
 	//TODO: Change Local/Remote Addresses
@@ -743,5 +781,35 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 	if (EnterYesNoInput() == 'y') 
 	{
 		UpdateFwRuleChanges(fwRule, updatedFwRule);
+	}
+
+	//Cleanup:
+
+	if (bstrName != nullptr)
+	{
+		SysFreeString(bstrName);
+	}
+	if (bstrDescription != nullptr)
+	{
+		SysFreeString(bstrDescription);
+	}
+	if (bstrApplicationName != nullptr)
+	{
+		SysFreeString(bstrApplicationName);
+	}
+	if (bstrLocalPorts != nullptr)
+	{
+		SysFreeString(bstrLocalPorts);
+	}
+	if (bstrRemotePorts != nullptr)
+	{
+		SysFreeString(bstrRemotePorts);
+	}
+	if (bstrICMPTypeCode != nullptr)
+	{
+		SysFreeString(bstrICMPTypeCode);
+	}
+	if (bstrInterfaceTypes != nullptr) {
+		SysFreeString(bstrInterfaceTypes);
 	}
 }
