@@ -84,6 +84,5 @@ BSTR EnterICMPTypes(bool isVersion4)
         }
     }
     while (!areTypesValid);
-    cout << "Selected ICMP types: " << ICMPTypesCodesBuilder(sIcmpTypes) << "\n";
     return CComBSTR(ICMPTypesCodesBuilder(sIcmpTypes).c_str()).Detach();
 }
