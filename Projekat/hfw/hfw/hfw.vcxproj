@@ -133,6 +133,7 @@
     <ClCompile Include="general_fw_settings.cpp" />
     <ClCompile Include="helper.cpp" />
     <ClCompile Include="icmp_types_handler.cpp" />
+    <ClCompile Include="ip_address_handler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="port_handler.cpp" />
     <ClCompile Include="rule_enumerations.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="general_fw_settings.h" />
     <ClInclude Include="helper.h" />
     <ClInclude Include="icmp_types_handler.h" />
+    <ClInclude Include="ip_address_handler.h" />
     <ClInclude Include="port_handler.h" />
     <ClInclude Include="rule_enumerations.h" />
     <ClInclude Include="rule_settings.h" />
