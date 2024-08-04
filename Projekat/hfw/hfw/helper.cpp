@@ -86,6 +86,7 @@ LONG EnterFwRuleProtocolNumber()
         }
     }
     while (lProtocolNumber < 0 or lProtocolNumber > NET_FW_IP_PROTOCOL_ANY);
+    cin.ignore(INT_MAX, '\n');
     return lProtocolNumber;
 }
 
@@ -120,7 +121,9 @@ LONG EnterFwRuleProfiles()
         if (fwRuleProfilesBitMask == 0) {
             cout << "At least one profile must be specified. Try again\n";
         }
-    } while (fwRuleProfilesBitMask == 0);
+    } 
+    while (fwRuleProfilesBitMask == 0);
+    cin.ignore(INT_MAX, '\n');
     return fwRuleProfilesBitMask;
 }
 
@@ -135,13 +138,13 @@ NET_FW_RULE_DIRECTION EnterFwRuleDirection()
     do
     {
         cin >> direction;
-        if (direction < 1 or direction >= NET_FW_RULE_DIR_MAX)
+        if (direction < NET_FW_RULE_DIR_IN or direction >= NET_FW_RULE_DIR_MAX)
         {
             cout << "Invalid enter for direction. Try again.\n";
         }
     }
-    while (direction < 1 or direction >= NET_FW_RULE_DIR_MAX);
-    return direction == 1 ? NET_FW_RULE_DIR_IN : NET_FW_RULE_DIR_OUT;
+    while (direction < NET_FW_RULE_DIR_IN or direction >= NET_FW_RULE_DIR_MAX);
+    return direction == NET_FW_RULE_DIR_IN ? NET_FW_RULE_DIR_IN : NET_FW_RULE_DIR_OUT;
 }
 
 NET_FW_ACTION EnterFwRuleAction()
@@ -155,11 +158,13 @@ NET_FW_ACTION EnterFwRuleAction()
     do
     {
         cin >> action;
-        if (action < 1 or action > NET_FW_ACTION_MAX)
+        if (action < NET_FW_ACTION_ALLOW or action > NET_FW_ACTION_MAX)
         {
             cout << "Invalid enter for action. Try again.\n";
         }
-    } while (action < 1 or action > NET_FW_ACTION_MAX);
+    } 
+    while (action < NET_FW_ACTION_ALLOW or action > NET_FW_ACTION_MAX);
+    cin.ignore(INT_MAX, '\n');
     return action == 1 ? NET_FW_ACTION_BLOCK : NET_FW_ACTION_ALLOW;
 }
 
@@ -170,6 +175,7 @@ BSTR EnterFwRuleAppName()
 	cout << "Application name (Leave empty for all applications): ";
 
     cin.clear();
+    cin.ignore(INT_MAX, '\n');
 	getline(std::cin, sApplicationName);
     return ConvertStringToBSTR(sApplicationName);
 }
@@ -232,11 +238,12 @@ BSTR EnterFwRuleInterfaceTypes()
     }
 
     EnterInterface("RemoteAccess", sInterfaces);
-    
+
     EnterInterface("Wireless", sInterfaces);
-    
+
     EnterInterface("Lan", sInterfaces);
     
+    cin.ignore(INT_MAX, '\n');
 ConvertToBSTR:
     return ConvertStringToBSTR(sInterfaces);
 }

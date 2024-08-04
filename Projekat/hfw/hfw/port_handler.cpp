@@ -87,6 +87,7 @@ string EnterFwRuleSpecificPorts()
     bool arePortsValid;
     cout << "Enter single port, multiple ports or range of ports\n"
         << "Examples: 80, 443, 45125-65535\n";
+    cin.ignore(INT_MAX, '\n');
     do
     {
         cin.clear();
@@ -96,7 +97,8 @@ string EnterFwRuleSpecificPorts()
         {
             cout << "Invalid enter for ports. Try again.\n";
         }
-    } while (!arePortsValid);
+    } 
+    while (!arePortsValid);
     return RemoveWhiteSpaces(sPorts);
 }
 
@@ -163,7 +165,7 @@ BSTR EnterPorts(bool isLocal, bool isProtocolTCP)
                 }
         		cout << "Invalid enter. Try again.\n"; break;
 	        }
-        default: cout << "Invalid enter. Try again.\n";
+        default: cout << "Invalid enter. Try again.\n"; break;
         }
     }
     while (input < 0 or input > maxInput);
