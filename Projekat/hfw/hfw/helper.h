@@ -18,6 +18,7 @@ BSTR EnterFwRuleInterfaceTypes();
 void EnterInterface(const std::string interfaceType, std::string& sInterfaces);
 BSTR EnterFwRuleICMPTypes(bool isVersion4 = true);
 BSTR EnterFwRulePorts(bool isLocal, bool isProtocolTCP);
+BSTR EnterFwRuleIPAddresses();
 
 namespace protocol_numbers
 {

@@ -12,6 +12,7 @@ Copyright (c) Microsoft Corporation. All Rights Reserved.
 #include "string_helper.h"
 #include "port_handler.h"
 #include "icmp_types_handler.h"
+#include "ip_address_handler.h"
 #include <atlcomcli.h>
 #include <netfw.h>
 #include <cstdio>
@@ -218,6 +219,11 @@ BSTR EnterFwRuleDescription()
 BSTR EnterFwRulePorts(bool isLocal, bool isProtocolTCP)
 {
     return EnterPorts(isLocal, isProtocolTCP);
+}
+
+BSTR EnterFwRuleIPAddresses()
+{
+    return ConvertStringToBSTR(EnterIPAddress());
 }
 
 BSTR EnterFwRuleICMPTypes(bool isVersion4)

@@ -26,9 +26,7 @@ bool isValidIPv6(const std::string& ipAddress) {
 
 bool isIPAddressValid(const std::string& ipAddress)
 {
-    if (isValidIPv4(ipAddress)) return true;
-    if (isValidIPv6(ipAddress)) return true;
-    return false;
+    return isValidIPv4(ipAddress) || isValidIPv6(ipAddress);
 }
 
 bool isIPAddressRangeValid(const std::string& ipAddress) 
@@ -47,7 +45,7 @@ bool isIPAddressRangeValid(const std::string& ipAddress)
     return true;
 }
 
-std::string EnterFwRuleIPAddress()
+std::string EnterIPAddress()
 {
     WSADATA wsaData;
     int wsaStartupResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
