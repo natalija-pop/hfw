@@ -495,6 +495,30 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, const FwRule& updatedFwRule
 	}
 	bstrProperty.Empty(); // Clear the BSTR
 
+	hr = fwRule->get_LocalAddresses(&bstrProperty);
+	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getLocalAddresses())
+	{
+		hr = fwRule->put_LocalAddresses(IsEmpty(updatedFwRule.getLocalAddresses()) ? SysAllocString(L"*") : updatedFwRule.getLocalAddresses());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_LocalAddresses failed: 0x%08lx\n", hr);
+		}
+
+	}
+	bstrProperty.Empty(); // Clear the BSTR
+
+	hr = fwRule->get_RemoteAddresses(&bstrProperty);
+	if (SUCCEEDED(hr) && bstrProperty != updatedFwRule.getRemoteAddresses())
+	{
+		hr = fwRule->put_RemoteAddresses(IsEmpty(updatedFwRule.getRemoteAddresses()) ? SysAllocString(L"*") : updatedFwRule.getRemoteAddresses());
+		if (FAILED(hr))
+		{
+			wprintf(L"put_RemoteAddresses failed: 0x%08lx\n", hr);
+		}
+
+	}
+	bstrProperty.Empty(); // Clear the BSTR
+
 	hr = fwRule->get_Enabled(&enabled);
 	if (SUCCEEDED(hr) && enabled != updatedFwRule.getEnabled())
 	{
@@ -647,6 +671,8 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 	BSTR bstrRemotePorts = nullptr;
 	BSTR bstrICMPTypeCode = nullptr;
 	BSTR bstrInterfaceTypes = nullptr;
+	BSTR bstrLocalAddress = nullptr;
+	BSTR bstrRemoteAddress = nullptr;
 
 	LONG lProtocol;
 	LONG lProfilesBitMask = 0;
@@ -775,7 +801,19 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 		updatedFwRule.setInterfaceTypes(IsEmpty(bstrInterfaceTypes) ? SysAllocString(L"All") : bstrInterfaceTypes);
 	}
 
-	//TODO: Change Local/Remote Addresses
+	cout << "Change Local Addreses (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		bstrLocalAddress = EnterFwRuleIPAddresses();
+		updatedFwRule.setLocalAddresses(IsEmpty(bstrLocalAddress) ? SysAllocString(L"*") : bstrLocalAddress);
+	}
+
+	cout << "Change Remote Addreses (y/n): ";
+	if (EnterYesNoInput() == 'y')
+	{
+		bstrRemoteAddress = EnterFwRuleIPAddresses();
+		updatedFwRule.setRemoteAddresses(IsEmpty(bstrRemoteAddress) ? SysAllocString(L"*") : bstrRemoteAddress);
+	}
 
 	cout << "Save changes (y/n): ";
 	if (EnterYesNoInput() == 'y') 
@@ -810,6 +848,12 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 		SysFreeString(bstrICMPTypeCode);
 	}
 	if (bstrInterfaceTypes != nullptr) {
+		SysFreeString(bstrInterfaceTypes);
+	}
+	if (bstrLocalAddress != nullptr) {
+		SysFreeString(bstrInterfaceTypes);
+	}
+	if (bstrRemoteAddress != nullptr) {
 		SysFreeString(bstrInterfaceTypes);
 	}
 }
