@@ -62,6 +62,8 @@ char EnterYesNoInput()
         cin >> input;
         if (input != 'n' and input != 'y')
         {
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
             cout << "Invalid enter. Try again.\n";
         }
 
