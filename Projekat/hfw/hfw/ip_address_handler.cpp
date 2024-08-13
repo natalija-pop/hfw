@@ -60,8 +60,6 @@ std::string EnterIPAddress()
     cout << "Enter IP address (y/n): ";
     while (EnterYesNoInput() == 'y')
     {
-        cin.clear();
-        cin.ignore(INT_MAX, '\n');
         cout << "Enter IP Address you want to add or enter range of addresses: ";
         getline(std::cin, ipAddress);
         if (!isIPAddressRangeValid(ipAddress)) 

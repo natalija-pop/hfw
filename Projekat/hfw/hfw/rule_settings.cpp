@@ -201,6 +201,9 @@ void AddNewRule()
 	NET_FW_RULE_DIRECTION direction;
 	NET_FW_ACTION action;
 
+	cin.clear();
+	cin.ignore(INT_MAX, '\n');
+
 	bstrApplicationName = EnterFwRuleAppName();
 	newFwRule.setApplicationName(bstrApplicationName);
 
@@ -752,7 +755,6 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 	cout << "Change Name (y/n): ";
 	if (EnterYesNoInput() == 'y')
 	{
-		cin.ignore(INT_MAX, '\n');
 		bstrName = EnterFwRuleName();
 		updatedFwRule.setName(bstrName);
 	}
@@ -760,7 +762,6 @@ void UpdatePropertiesDialog(CComPtr<INetFwRule> fwRule)
 	cout << "Change Description (y/n): ";
 	if (EnterYesNoInput() == 'y')
 	{
-		cin.ignore(INT_MAX, '\n');
 		bstrDescription = EnterFwRuleDescription();
 		updatedFwRule.setDescription(IsEmpty(bstrDescription) ? nullptr : bstrDescription);
 	}

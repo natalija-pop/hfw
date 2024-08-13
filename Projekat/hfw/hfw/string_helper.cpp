@@ -68,6 +68,8 @@ char EnterYesNoInput()
         }
 
     } while (input != 'n' and input != 'y');
+    cin.clear();
+    cin.ignore(INT_MAX, '\n');
     return input;
 }
 

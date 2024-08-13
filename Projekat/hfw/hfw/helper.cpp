@@ -87,6 +87,7 @@ LONG EnterFwRuleProtocolNumber()
         }
     }
     while (lProtocolNumber < 0 or lProtocolNumber > NET_FW_IP_PROTOCOL_ANY);
+    cin.clear();
     cin.ignore(INT_MAX, '\n');
     return lProtocolNumber;
 }
@@ -124,7 +125,6 @@ LONG EnterFwRuleProfiles()
         }
     } 
     while (fwRuleProfilesBitMask == 0);
-    cin.ignore(INT_MAX, '\n');
     return fwRuleProfilesBitMask;
 }
 
@@ -165,6 +165,7 @@ NET_FW_ACTION EnterFwRuleAction()
         }
     } 
     while (action < NET_FW_ACTION_ALLOW or action > NET_FW_ACTION_MAX);
+    cin.clear();
     cin.ignore(INT_MAX, '\n');
     return action == 1 ? NET_FW_ACTION_BLOCK : NET_FW_ACTION_ALLOW;
 }
@@ -175,8 +176,6 @@ BSTR EnterFwRuleAppName()
     cout << "APPLICATION NAME\n";
 	cout << "Application name (Leave empty for all applications): ";
 
-    cin.clear();
-    cin.ignore(INT_MAX, '\n');
 	getline(std::cin, sApplicationName);
     return ConvertStringToBSTR(sApplicationName);
 }
@@ -242,14 +241,10 @@ BSTR EnterFwRuleInterfaceTypes()
         sInterfaces = "All";
         goto ConvertToBSTR;
     }
-
     EnterInterface("RemoteAccess", sInterfaces);
-
     EnterInterface("Wireless", sInterfaces);
-
     EnterInterface("Lan", sInterfaces);
     
-    cin.ignore(INT_MAX, '\n');
 ConvertToBSTR:
     return ConvertStringToBSTR(sInterfaces);
 }
