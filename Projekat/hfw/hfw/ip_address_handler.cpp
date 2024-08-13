@@ -76,7 +76,7 @@ std::string EnterIPAddress()
             }
             ipAddressRange += ipAddress;
         }
-        cout << "Enter IP address (y/n): ";
+        cout << "Enter new IP address (y/n): ";
     }
     WSACleanup();
     return ipAddressRange;

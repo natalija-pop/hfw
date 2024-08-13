@@ -349,11 +349,6 @@ void UpdateFwRuleChanges(CComPtr<INetFwRule> fwRule, const FwRule& updatedFwRule
 			if (updatedFwRule.getProtocol() == IP_PROTOCOL_TCP or updatedFwRule.getProtocol() == IP_PROTOCOL_UDP)
 			{
 				hr = fwRule->put_IcmpTypesAndCodes(nullptr);
-				if (FAILED(hr))
-				{
-					wprintf(L"put_IcmpTypesAndCodes failed: 0x%08lx\n", hr);
-				}
-
 				hr = fwRule->put_Protocol(updatedFwRule.getProtocol());
 				if (FAILED(hr))
 				{

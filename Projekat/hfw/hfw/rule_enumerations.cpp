@@ -49,7 +49,7 @@ bool ChangeFwRuleEnabled(std::vector<CComPtr<INetFwRule>>& fwRulesVec, int posit
         wprintf(L"get_Enabled failed. Cannot change the enabled property of the rule\n");
         return false;
     }
-    if (FAILED(fwRule->put_Enabled(!enabled)))
+    if (FAILED(fwRule->put_Enabled(~enabled)))
     {
         wprintf(L"put_Enabled failed. Cannot change the enabled property of the rule\n");
         return false;
