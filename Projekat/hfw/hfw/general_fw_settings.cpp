@@ -17,6 +17,7 @@ Abstract:
 #include <cstdio>
 #include <iostream>
 #include "helper.h"
+#include "string_helper.h"
 
 using namespace std;
 
@@ -124,7 +125,7 @@ void DisableWindowsFirewall()
     }
 }
 
-void ManageProfileState(NET_FW_PROFILE_TYPE2 profileType, bool enabled)
+void ManageProfileState(long profileTypeBitMask, bool enabled)
 {
     HRESULT hrComInit = S_OK;
     HRESULT hr = S_OK;
@@ -155,7 +156,7 @@ void ManageProfileState(NET_FW_PROFILE_TYPE2 profileType, bool enabled)
     }
 
 
-    if ((profileType & NET_FW_PROFILE2_DOMAIN) != 0 or (profileType & NET_FW_PROFILE2_ALL) != 0)
+    if ((profileTypeBitMask & NET_FW_PROFILE2_DOMAIN) != 0 or (profileTypeBitMask & NET_FW_PROFILE2_ALL) == NET_FW_PROFILE2_ALL)
     {
         hr = pNetFwPolicy2->put_FirewallEnabled(NET_FW_PROFILE2_DOMAIN, enabled);
         if (FAILED(hr))
@@ -173,7 +174,7 @@ void ManageProfileState(NET_FW_PROFILE_TYPE2 profileType, bool enabled)
         }
     }
 
-    if ((profileType & NET_FW_PROFILE2_PRIVATE) != 0 or (profileType & NET_FW_PROFILE2_ALL) != 0)
+    if ((profileTypeBitMask & NET_FW_PROFILE2_PRIVATE) != 0 or (profileTypeBitMask & NET_FW_PROFILE2_ALL) == NET_FW_PROFILE2_ALL)
     {
         hr = pNetFwPolicy2->put_FirewallEnabled(NET_FW_PROFILE2_PRIVATE, enabled);
         if (FAILED(hr))
@@ -191,7 +192,7 @@ void ManageProfileState(NET_FW_PROFILE_TYPE2 profileType, bool enabled)
         }
     }
 
-    if ((profileType & NET_FW_PROFILE2_PUBLIC) != 0 or (profileType & NET_FW_PROFILE2_ALL) != 0)
+    if ((profileTypeBitMask & NET_FW_PROFILE2_PUBLIC) != 0 or (profileTypeBitMask & NET_FW_PROFILE2_ALL) == NET_FW_PROFILE2_ALL)
     {
         hr = pNetFwPolicy2->put_FirewallEnabled(NET_FW_PROFILE2_PUBLIC, enabled);
         if (FAILED(hr))
@@ -220,45 +221,31 @@ Cleanup:
 
 void ManageProfileFwStateMenu(bool enabled)
 {
+    long profileTypeBitMask = 0;
     int menuItem = -1;
-    string sMenuAction;
-
-    if(enabled)
-    {
-        sMenuAction = "Choose profile to enable:\n";
-    }
-    else
-    {
-        sMenuAction = "Choose profile to disable:\n";
-    }
-
-    NET_FW_PROFILE_TYPE2 profileType{};
+    string sMenuAction = enabled ? "Choose profile to enable:\n" : "Choose profile to disable:\n";
 
     while(menuItem < 1 or menuItem > 4)
     {
         cout << sMenuAction
     		 << "1. Domain\n"
     		 << "2. Private\n"
-    		 << "3. Public\n";
-
-    	if(enabled)
-        {
-            cout << "4. All\n";
-        }
+    		 << "3. Public\n"
+             << "4. All\n";
 
         cin >> menuItem;
 
         switch (menuItem)
         {
-	        case 1: profileType = NET_FW_PROFILE2_DOMAIN; break;
-	        case 2: profileType = NET_FW_PROFILE2_PRIVATE; break;
-	        case 3: profileType = NET_FW_PROFILE2_PUBLIC; break;
-	        case 4: profileType = NET_FW_PROFILE2_ALL; break;
+	        case 1: profileTypeBitMask |= NET_FW_PROFILE2_DOMAIN; break;
+	        case 2: profileTypeBitMask |= NET_FW_PROFILE2_PRIVATE; break;
+	        case 3: profileTypeBitMask |= NET_FW_PROFILE2_PUBLIC; break;
+	        case 4: profileTypeBitMask |= NET_FW_PROFILE2_ALL; break;
 	        default: cout << "Invalid menu item selected. Try again.\n"; break;
         }
 
     }
-    ManageProfileState(profileType, enabled);
+    ManageProfileState(profileTypeBitMask, enabled);
 }
 
 void GetFirewallSettings()
@@ -347,17 +334,14 @@ void GetFirewallSettingsPerProfile(NET_FW_PROFILE_TYPE2 profileType, INetFwPolic
 }
 
 void UpdateSettingsPerProfile(INetFwPolicy2* pNetFwPolicy2) {
-	CHAR cInput;
-
-	cout << "Options: Change settings per profile (y/n)\n";
-    cin >> cInput;
-
-	if (cInput == 'n') return;
+	
+    cout << "Options: Change settings per profile (y/n)\n";
+	if (EnterYesNoInput() == 'n') return;
 
 	const NET_FW_PROFILE_TYPE2 profileType = getProfileType();
 
 	const VARIANT_BOOL bIsFwEnabled = getYesNoInput("Turn Firewall on");
-	const VARIANT_BOOL bIsInboundEnabled = ~getYesNoInput("Block inbound connections");
+	const VARIANT_BOOL bIsInboundEnabled = getYesNoInput("Allow inbound connections");
 	const VARIANT_BOOL bAreNotificationsDisabled = getYesNoInput("Disable notifications");
 	const VARIANT_BOOL bIsUnicastResponseDisabled = getYesNoInput("Disable unicast to multicast broadcast");
 
